@@ -11,6 +11,7 @@ from torch.utils import data
 import torch.distributed as dist
 from torchvision import transforms, utils
 from tqdm import tqdm
+from torch.utils.tensorboard import SummaryWriter
 
 try:
     import wandb
@@ -124,6 +125,8 @@ def set_grad_none(model, targets):
 
 
 def train(args, loader, generator, discriminator, g_optim, d_optim, g_ema, device):
+    writer = SummaryWriter(logdir=args.tensorboard_dir)
+    writer.add_graph(generator)
     loader = sample_data(loader)
 
     pbar = range(args.iter)
@@ -276,6 +279,14 @@ def train(args, loader, generator, discriminator, g_optim, d_optim, g_ema, devic
         real_score_val = loss_reduced["real_score"].mean().item()
         fake_score_val = loss_reduced["fake_score"].mean().item()
         path_length_val = loss_reduced["path_length"].mean().item()
+
+        writer.add_scalar('Loss/discriminator', d_loss_val, idx)
+        writer.add_scalar('Loss/generator', g_loss_val, idx)
+        writer.add_scalar('Loss/r1', r1_val, idx)
+        writer.add_scalar('Loss/path', path_loss_val, idx)
+        writer.add_scalar('Loss/real_score', real_score_val, idx)
+        writer.add_scalar('Loss/fake_score', fake_score_val, idx)
+        writer.add_scalar('Loss/path_length', path_lengh_val, idx)
 
         if get_rank() == 0:
             pbar.set_description(
@@ -432,6 +443,12 @@ if __name__ == "__main__":
         type=str,
         default=".",
         help="path to output folder for checkpoints and images",
+    )
+    parser.add_argument(
+        "--tensorboard_dir",
+        type=str,
+        default=".",
+        help="path to tensorboard log folder",
     )
 
     args = parser.parse_args()

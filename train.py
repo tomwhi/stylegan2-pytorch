@@ -126,7 +126,6 @@ def set_grad_none(model, targets):
 
 def train(args, loader, generator, discriminator, g_optim, d_optim, g_ema, device):
     writer = SummaryWriter(log_dir=args.tensorboard_dir)
-    writer.add_graph(generator)
     loader = sample_data(loader)
 
     pbar = range(args.iter)

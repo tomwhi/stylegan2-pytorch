@@ -285,7 +285,7 @@ def train(args, loader, generator, discriminator, g_optim, d_optim, g_ema, devic
         writer.add_scalar('Loss/path', path_loss_val, idx)
         writer.add_scalar('Loss/real_score', real_score_val, idx)
         writer.add_scalar('Loss/fake_score', fake_score_val, idx)
-        writer.add_scalar('Loss/path_length', path_lengh_val, idx)
+        writer.add_scalar('Loss/path_length', path_length_val, idx)
 
         if get_rank() == 0:
             pbar.set_description(
